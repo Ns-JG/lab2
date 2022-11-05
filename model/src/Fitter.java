@@ -6,12 +6,16 @@ public class Fitter {
     HashMap<Integer, Integer> animals_index_type_linker = new HashMap<Integer, Integer>(); // index, typ
     HashMap<Integer , ArrayList<Integer>> animals_type_food_linker = new HashMap<Integer , ArrayList<Integer>>(); // typ , [food 1, food2 , ...]
     HashMap<Integer , ArrayList<Integer>> farms_type_food_linker = new HashMap<Integer , ArrayList<Integer>>(); // index_farmy , [food 1, food2 , ...]
+    ArrayList<Integer> quantity = new ArrayList<Integer>();
 
-    public ArrayList<Integer> fit_Animals_To_Farms() {
-        for(int i = 0; i < this.farms_type_food_linker.size(); i++) {
-            for(int j = 2; j >= 0; j--) {
-                for(int k = 0; k < this.animals_index_type_linker.size(); k++) {
-                    var farm_choosen = farms_type_food_linker.get(farms_sorted.get(i)); // dostęp do
+    public HashMap<Integer, ArrayList<Integer>> fit_Animals_To_Farms() {
+        var result = new HashMap<Integer, ArrayList<Integer>>();
+        var animals = new ArrayList<Integer>();
+        for (int i = 0; i < this.farms_type_food_linker.size(); i++) {
+            for (int j = 2; j >= 0; j--) {
+                for (int k = 0; k < this.animals_index_type_linker.size(); k++) {
+                    var farm = farms_sorted.get(i); // indeks farmy
+                    var farm_choosen = farms_type_food_linker.get(farm); // dostęp do
                     // zapasów największej
                     // farmy [food
                     // 1,
@@ -23,21 +27,30 @@ public class Fitter {
 
                     // odejmowanie od zapasów farmy wymaganego żarcia przez typ zwierzęcia
 
-                    //farm_choosen > 0 ? farm_choosen -= type_choosen : break;
-
-                    // jeżeli jest jedzenie na farmie to odejmij od niego porcje jaką potrzebuje zwierze, jeśli nie to
-                    // przerwuj tego fora i przejdź to
-                    // innej kategorii wielkości zwierza
+                    for (int l = 0; l < farm_choosen.size(); l++) { // lecisz po typie karmy na danej
+                        // farmie i jeżeli to jest większe od zero to odejmujesz od tego zwierza co jest aktualnie
+                        // jako wybrany
+                        if (farm_choosen.get(l) > 0) {
+                            // Dlaczego farm_choosen.get(l) to jest tablica jak ja biore konkretna farme czyli już
+                            // mam tylko jedną tablice i później z tej tablicy wyciągam jeden typ karmy i na nim
+                            // robie arytmetyke
+                            farm_choosen.get(l) = farm_choosen.get(l) - type_choosen.get(l);
+                            quantity.add(farm_choosen.get(l));
+                            animals.add(animal_choosen);
+                        }
+                        else break;
+                    }
+                    result.put(farm, animals);
                 }
             }
         }
 
 
-        return new ArrayList<Integer>();
+        return result;
     }
-    public int calc_score() {
 
-        return 0;
+    public ArrayList<Integer> calc_score() {
+        return quantity;
     }
 
 }
