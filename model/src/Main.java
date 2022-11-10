@@ -1,11 +1,5 @@
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.function.Consumer;
-
-
 /**
     @author Jakub Gonczarek
 
@@ -29,18 +23,14 @@ public class Main {
         Fitter fitter = new Fitter(sorter);
 
         // display data // logger class ?
-        var sizes = Arrays.asList("big", "medium", "little").iterator();
-        sorter.sorted_Farms().forEach((n) -> {System.out.printf("Farms [%s] : %s\n", sizes.next(), n.toString()); });
-
-        var sizes2 = Arrays.asList("big", "medium", "little").iterator();
-        sorter.sorted_Animals().forEach((n) -> {System.out.printf("Animal [%s] : %s\n",sizes2.next() , n.toString()); });
+        var sizes = new Loop_logger(Arrays.asList("big", "medium", "little"));
+        sorter.sorted_Farms().forEach((n) -> System.out.printf("Farms [%s] : %s\n", sizes.next(), n.toString()));
+        sizes.reset_index();
+        sorter.sorted_Animals().forEach((n) -> System.out.printf("Animal [%s] : %s\n",sizes.next() , n.toString()));
 
         // perform fiiting algorythm // logger class ?
-        var results = fitter.fit_animals();
-
+        fitter.fit_animals_method1();
         // display results // logger class ?
-        var fitting_score = fitter.calc_final_score();
-
     }
 }
 

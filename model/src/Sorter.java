@@ -38,14 +38,12 @@ public class Sorter {
 
     public ArrayList<ArrayList<Integer>> sorted_Animals() { //  3x Array [ [big], [mid], [lil]]
         var all_animals = this.calc_score_animals();
-        all_animals.sort(new Comparator<ArrayList<Integer>>() {
-            @Override
-            public int compare(ArrayList<Integer> o1, ArrayList<Integer> o2) {
-                Integer i1 = (Integer) (o1.get(1));
-                Integer i2 = (Integer) (o2.get(1));
-                return i1.compareTo(i2);
-            } });
-        var sorted_animals = new ArrayList<Integer>(); all_animals.forEach((n) -> { sorted_animals.add(n.get(0)); });
+        all_animals.sort((o1, o2) -> {
+            Integer i1 = o1.get(1);
+            Integer i2 = o2.get(1);
+            return i1.compareTo(i2);
+        });
+        var sorted_animals = new ArrayList<Integer>(); all_animals.forEach((n) -> sorted_animals.add(n.get(0)));
         int index_divide = sorted_animals.size() / 3; // zwraca int [ a // b = c ]
         var lil = new ArrayList<>(sorted_animals.subList(0, index_divide));
         var mid = new ArrayList<>(sorted_animals.subList(index_divide, 2*index_divide));
@@ -56,16 +54,14 @@ public class Sorter {
     public ArrayList<ArrayList<Integer>> sorted_Farms() { // -> 3x Array [ [big], [mid], [lil]]
         var farm_score = new ArrayList<ArrayList<Integer>>();
         for (ArrayList<Integer> farm : this.farm_index_supply) {
-            farm_score.add(new ArrayList<Integer>(Arrays.asList(farm.get(0), this.food_score_array_index(new ArrayList<>(farm.subList(1,farm.size()))))));
+            farm_score.add(new ArrayList<>(Arrays.asList(farm.get(0), this.food_score_array_index(new ArrayList<>(farm.subList(1,farm.size()))))));
         }
-        farm_score.sort(new Comparator<ArrayList<Integer>>() {
-            @Override
-            public int compare(ArrayList<Integer> o1, ArrayList<Integer> o2) {
-                Integer i1 = (Integer) (o1.get(1));
-                Integer i2 = (Integer) (o2.get(1));
-                return i1.compareTo(i2);
-            } });
-        var farms_index_sorted = new ArrayList<Integer>(); farm_score.forEach((n) -> {farms_index_sorted.add(n.get(0)); } );
+        farm_score.sort((o1, o2) -> {
+            Integer i1 = o1.get(1);
+            Integer i2 = o2.get(1);
+            return i1.compareTo(i2);
+        });
+        var farms_index_sorted = new ArrayList<Integer>(); farm_score.forEach((n) -> farms_index_sorted.add(n.get(0)));
         int index_divide = farm_score.size() / 3;
         var lil = new ArrayList<>(farms_index_sorted.subList(0, index_divide));
         var mid = new ArrayList<>(farms_index_sorted.subList(index_divide, 2*index_divide));
