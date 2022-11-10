@@ -46,7 +46,7 @@ public class Generator {
             int typ = this.rand.nextInt(this.ilosc_typow_pozywienia)+1;
             int ilosc = this.rand.nextInt(50-9)+10;
             id_animal_food.add(new ArrayList<Integer>(Arrays.asList( counter, typ, ilosc )));
-            output_file_writer.write(counter+","+typ+","+ilosc+","+"\n");
+            output_file_writer.write(counter+","+typ+","+ilosc+"\n");
             counter++;
         }
         output_file_writer.close();
@@ -61,9 +61,9 @@ public class Generator {
         var farms = new ArrayList<ArrayList<Integer>>();
         int counter = 1;
         while (counter < this.ilosc_farm+1) {
-            var food = this.food_amount_list();
+            var food = this.food_amount_list(); food.add(0, counter);
             farms.add(food);
-            output_file_writer.write(counter+","+String.join(", ", food.toString().replace("[", "").replace("]",""))+"\n");
+            output_file_writer.write(String.join(", ", food.toString().replace("[", "").replace("]",""))+"\n");
             counter++;
         }
         output_file_writer.close();
@@ -73,7 +73,7 @@ public class Generator {
     private ArrayList<Integer> animal_type_list() {
         var types = new ArrayList<Integer>();
         int counter = this.ilosc_zwierzat;
-        while (counter>=0) { types.add(this.rand.nextInt(this.ilosc_typow_zwierzat)+1);counter--;}
+        while (counter>0) { types.add(this.rand.nextInt(this.ilosc_typow_zwierzat)+1);counter--;}
         types.sort(null);
         return types;
     }
