@@ -2,7 +2,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-@SuppressWarnings("SuspiciousMethodCalls")
 public class Fitter {
     class Farm {
         public Integer index;
@@ -17,7 +16,6 @@ public class Fitter {
             }
         }
         public boolean add_animal(Animal animal) {
-            //System.out.println(this.supplies+"\t"+animal.demand);
             var temp_sub_vals = new ArrayList<Integer>();
             var failed = false;
             for (var demand_index : animal.demand.keySet()) {
@@ -26,7 +24,6 @@ public class Fitter {
                 this.supplies.replace(demand_index, this.supplies.get(demand_index)-animal.demand.get(demand_index));
             }
             if (failed) {
-//                System.out.println("Failed"+temp_sub_vals+this.supplies+"\t"+animal.demand);
                 int index = 1;
                 for (var demand_value : temp_sub_vals) { // reversing if failed
                     this.supplies.replace(index, this.supplies.get(index)+demand_value); index++;
@@ -35,16 +32,14 @@ public class Fitter {
             } else this.habbitants.add(animal);
             return false;
         } // true - refused, false - added
-        public Integer try_configuration(ArrayList<Animal> queue) { // method 2
-//            for ( Animal animal : queue ) { if (!this.add_animal(animal)) { return false; } }
-            return 0;
-        }
+//        public Integer try_configuration(ArrayList<Animal> queue) { // method 2
+//            return 0;
+//        }
         public ArrayList<Integer> get_supplies_left() { return new ArrayList<>(supplies.values()); }
         public Integer get_supplies_left_int() { return Arrays.stream(this.get_supplies_left().toArray()).mapToInt((n) -> (Integer)n).sum(); }
         public void restore_supplies() { this.supplies_raw.keySet().forEach((n) -> this.supplies.replace(n, this.supplies_raw.get(n)));
 
         }
-
     }
     class Animal {
         public Integer index;
@@ -83,6 +78,7 @@ public class Fitter {
         }
     }
     public void fit_animals_method1() { // temporal best match for stats per farm \ brute force
+        var capacity = this.score();
         var total = this.animals_1D.size();
         var queue = new ArrayList<ArrayList<Animal>>(Arrays.asList(new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         var animals_2D = new ArrayList<>(this.animals_2D);
@@ -109,10 +105,11 @@ public class Fitter {
             }
 
             var flattened_queue = queue.stream().flatMap(ArrayList::stream).collect(Collectors.toList());
-            var index_queue = new ArrayList<ArrayList<Integer>>(Arrays.asList(new ArrayList<>(), new ArrayList<>(), new ArrayList<>())); IntStream.range(0, queue.size()).forEach(ix ->
+            var index_queue = new ArrayList<ArrayList<Integer>>(Arrays.asList(new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+            IntStream.range(0, queue.size()).forEach(ix ->
                     IntStream.range(0, queue.get(ix).size()).forEach((k)->
                             index_queue.get(ix).add(queue.get(ix).get(k).index)));
-            //logger.farms_results.add(flattened_queue);
+
             System.out.println("QUEUE:\t"+index_queue+"\t");
             //System.out.printf("farm index: %s\t\tfarm supplies remiain\t%s%n", farm.get_supplies_left_int());
             for (int i = 0; i < 3; i++) { animals_2D.get(i).removeAll(queue.get(i)); queue.get(i).clear(); }
@@ -120,21 +117,15 @@ public class Fitter {
             System.out.printf("Farm index: %s\tadded animals: %s\tanimals left: %s%n",farm.index, flattened_queue.size(), total+"\n");
             System.out.print("----------------------------------------------------------------------\n");
         }
-        System.out.println("unfitted animals");
-        this.log_2D_animals(animals_2D); // unfitted
+        System.out.println("unfitted animals"); this.log_2D_animals(animals_2D); // unfitted
+        this.farms_1D.forEach((n) -> {
+            List<List<Object>> habitans_visual = new ArrayList<>();
+            n.habbitants.forEach((k) -> habitans_visual.add(new ArrayList<>(Arrays.asList("id:", k.index,"type", k.type))));
+            System.out.printf("farm_id: %d\tanimals : %s (%d)%n", n.index, habitans_visual, n.habbitants.size());
+        }); //fitted
+        System.out.printf("\u001B[1m" +"%nFull capacity: %s\tLeft : %s\t score: %2.2f%%", capacity, this.score(), ((float)this.score()/(float)capacity)*100.0); //final score
     }
-
-
-    public void fit_animals_method2() { // seed method / random with score optimalization
-
-    }
-//    public void calc_final_score() {
-//        int score = 0;
-//        for (Farm farm : this.farms_1D) { score += farm.get_supplies_left_int(); }
-//        this.logger.score = score;
-//    }
-    //public Logger get_logger() { return this.logger; }
-    public void log_2D_animals(ArrayList<ArrayList<Animal>> arr2d) {
+    private void log_2D_animals(ArrayList<ArrayList<Animal>> arr2d) {
         Loop_logger iter = new Loop_logger(sizes);
         int record = 1;
         for (ArrayList<Animal> k : arr2d) {
@@ -143,5 +134,12 @@ public class Fitter {
             else { for (Animal i : k) { System.out.printf("nr[%s] : %s,", record++, i.index); } }
             System.out.println();
         }
+        System.out.println();
     }
+    private int score() {
+        int score = 0;
+        for ( Farm farm : this.farms_1D ) { score += farm.get_supplies_left_int(); }
+        return score;
+    }
+
 }
