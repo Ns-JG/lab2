@@ -6,10 +6,10 @@ import java.util.Arrays;
 import java.util.Random;
 // import java.util.stream.IntStream // for range
 public class Generator {
-    private int ilosc_zwierzat;
-    private int ilosc_typow_zwierzat;
-    private int ilosc_typow_pozywienia;
-    private int ilosc_farm;
+    public int ilosc_zwierzat;
+    public int ilosc_typow_zwierzat;
+    public int ilosc_typow_pozywienia;
+    public int ilosc_farm;
     private final Random rand = new Random();
 
     public Generator(int ilosc_zwierzat, int ilosc_typow_zwierzat, int ilosc_typow_pozywienia, int ilosc_farm) {
@@ -43,10 +43,12 @@ public class Generator {
         var id_animal_food = new ArrayList<ArrayList<Integer>>();
         int counter = 1;
         while( counter<this.ilosc_typow_zwierzat+1 ) {
-            int typ = this.rand.nextInt(this.ilosc_typow_pozywienia)+1;
-            int ilosc = this.rand.nextInt(50-9)+10;
-            id_animal_food.add(new ArrayList<Integer>(Arrays.asList( counter, typ, ilosc )));
-            output_file_writer.write(counter+","+typ+","+ilosc+"\n");
+            int typow = this.rand.nextInt(this.ilosc_typow_pozywienia)+1;
+            var demand = new ArrayList<Integer>();
+            for (int i = 0; i < typow; i++) { demand.add(this.rand.nextInt(50-9)+10); }
+            demand.add(0, counter); // index typu
+            id_animal_food.add(demand);
+            output_file_writer.write(String.join(",", demand.toString().replace("[", "").replace("]",""))+"\n");
             counter++;
         }
         output_file_writer.close();

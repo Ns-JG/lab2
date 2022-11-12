@@ -32,9 +32,7 @@ public class Fitter {
             } else this.habbitants.add(animal);
             return false;
         } // true - refused, false - added
-//        public Integer try_configuration(ArrayList<Animal> queue) { // method 2
-//            return 0;
-//        }
+
         public ArrayList<Integer> get_supplies_left() { return new ArrayList<>(supplies.values()); }
         public Integer get_supplies_left_int() { return Arrays.stream(this.get_supplies_left().toArray()).mapToInt((n) -> (Integer)n).sum(); }
         public void restore_supplies() { this.supplies_raw.keySet().forEach((n) -> this.supplies.replace(n, this.supplies_raw.get(n)));
@@ -51,13 +49,14 @@ public class Fitter {
             int id = 1; for (Integer food_demand : demand) { this.demand.put(id++, food_demand); }
         }
     }
+    private final Generator generator;
     private final ArrayList<ArrayList<Animal>> animals_2D = new ArrayList<>();
-    private final ArrayList<ArrayList<Farm>> farms_2D = new ArrayList<>();
     private final ArrayList<Animal> animals_1D = new ArrayList<>();
     private final ArrayList<Farm> farms_1D = new ArrayList<>();
     public static List sizes = Arrays.asList("big", "medium", "little");
 
-    public Fitter(Sorter sorter) {
+    public Fitter(Sorter sorter, Generator generator) {
+        this.generator = generator;
         for ( ArrayList<Integer> type : sorter.sorted_Animals() ) {
             var temp = new ArrayList<Animal>();
             for (Integer index : type) {
@@ -74,12 +73,14 @@ public class Fitter {
                 this.farms_1D.add(temp_farm);
                 temp.add(temp_farm);
             }
-            this.farms_2D.add(temp);
+            ArrayList<ArrayList<Farm>> farms_2D = new ArrayList<>();
+            farms_2D.add(temp);
         }
     }
     public void fit_animals_method1() { // temporal best match for stats per farm \ brute force
         var capacity = this.score();
         var total = this.animals_1D.size();
+        var left = 0;
         var queue = new ArrayList<ArrayList<Animal>>(Arrays.asList(new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         var animals_2D = new ArrayList<>(this.animals_2D);
         var fitted_animals = new ArrayList<Animal>();
@@ -115,31 +116,44 @@ public class Fitter {
             for (int i = 0; i < 3; i++) { animals_2D.get(i).removeAll(queue.get(i)); queue.get(i).clear(); }
             total -= flattened_queue.size();
             System.out.printf("Farm index: %s\tadded animals: %s\tanimals left: %s%n",farm.index, flattened_queue.size(), total+"\n");
+            left = total;
             System.out.print("----------------------------------------------------------------------\n");
         }
-        System.out.println("unfitted animals"); this.log_2D_animals(animals_2D); // unfitted
+        System.out.println("unfitted animals (indexes)"); this.log_2D_animals(animals_2D); // unfitted
         this.farms_1D.forEach((n) -> {
             List<List<Object>> habitans_visual = new ArrayList<>();
             n.habbitants.forEach((k) -> habitans_visual.add(new ArrayList<>(Arrays.asList("id:", k.index,"type", k.type))));
-            System.out.printf("farm_id: %d\tanimals : %s (%d)%n", n.index, habitans_visual, n.habbitants.size());
+            System.out.printf("farm_id: %d\tsupplies left: %d\tanimals : %s (%d)%n", n.index, n.get_supplies_left_int(),habitans_visual, n.habbitants.size());
         }); //fitted
-        System.out.printf("\u001B[1m" +"%nFull capacity: %s\tLeft : %s\t score: %2.2f%%", capacity, this.score(), ((float)this.score()/(float)capacity)*100.0); //final score
+        System.out.printf("\u001B[1m" +"%nFull capacity: %s\tLeft : %s\t score: %2.2f%%\tFitted animals: %2.2f%%%n",
+                capacity, this.score(), ((float)this.score()/(float)capacity)*100.0, (1-(float)left/(float)this.animals_1D.size())*100); //final score
+        this.supplies_left_log(); // food left
     }
     private void log_2D_animals(ArrayList<ArrayList<Animal>> arr2d) {
         Loop_logger iter = new Loop_logger(sizes);
-        int record = 1;
         for (ArrayList<Animal> k : arr2d) {
-            System.out.printf("[%s]", iter.next());
-            if (k.size() == 0) { System.out.println("\tNone"); }
-            else { for (Animal i : k) { System.out.printf("nr[%s] : %s,", record++, i.index); } }
+            System.out.printf("[%s]\t", iter.next());
+            if (k.size() == 0) { System.out.print("\tNone"); }
+            else { for (Animal i : k) { System.out.printf("%s,", i.index); } }
             System.out.println();
         }
         System.out.println();
     }
     private int score() {
         int score = 0;
-        for ( Farm farm : this.farms_1D ) { score += farm.get_supplies_left_int(); }
+        for ( Farm farm : this.farms_1D ) {
+            score += farm.get_supplies_left_int(); }
         return score;
     }
-
+    private void supplies_left_log() {
+//        var scores = new ArrayList<Integer>();
+//        for (int i = 0; i < this.generator.ilosc_typow_pozywienia; i++) { scores.add(0); }
+//        for ( Farm farm : this.farms_1D ) {
+//            int type = 0;
+//            System.out.
+//            for (Integer food_type : farm.get_supplies_left()) { scores.set(type, scores.get(type)+food_type); }
+//        }
+//        System.out.print("Food left in farms: ");
+//        for (int i = 1; i < this.generator.ilosc_typow_pozywienia+1; i++) { System.out.printf("type %d: %d\t", i, scores.get(i-1)); }
+    }
 }
